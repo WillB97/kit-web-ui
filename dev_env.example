@@ -1,0 +1,10 @@
+app_root="$(dirname -- "$( readlink -f -- "$0")")"
+# Replace with a secret key generated from django.core.management.utils.get_random_secret_key()
+export DJANGO_SECRET_KEY=""
+export DJANGO_DEBUG=true
+# export DJANGO_ALLOWED_HOSTS='*'
+
+export DJANGO_SETTINGS_MODULE=kit_web_ui.settings
+export PYTHONPATH="$app_root"
+
+source venv/bin/activate

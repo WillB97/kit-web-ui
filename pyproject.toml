@@ -1,0 +1,74 @@
+[tool.mypy]
+mypy_path = "stubs"
+
+warn_unused_ignores = true
+warn_return_any = true
+show_error_codes = true
+
+strict_optional = true
+implicit_optional = true
+
+disallow_any_unimported = true
+disallow_subclassing_any = true
+#disallow_any_generics = true
+
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_untyped_decorators = true
+
+check_untyped_defs = true
+
+[tool.isort]
+atomic = true
+balanced_wrapping = true
+known_first_party = "kit_web_ui"
+
+# hanging grid grouped indent style wrapping
+multi_line_output = 5
+include_trailing_comma = true
+
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+write_to = "kit_web_ui/_version.py"
+
+[tool.setuptools]
+packages = ["kit_web_ui"]
+
+[project]
+name = "kit-web-ui"
+description = "A collection of useful logging tools"
+authors = [{name = "Will Barber"}]
+readme = "README.md"
+license = {file = "LICENSE"}
+dynamic = ["version"]
+requires-python = ">=3.8"
+dependencies = [
+    "Django ==4.2.2",
+    "typing-extensions; python_version<'3.10'",
+]
+classifiers = [
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Operating System :: OS Independent",
+    "Development Status :: 4 - Beta",
+    "Typing :: Typed",
+]
+
+[project.urls]
+Repository = "https://github.com/WillB97/kit-web-ui"
+Homepage = "https://github.com/WillB97/kit-web-ui"
+
+[project.optional-dependencies]
+dev = [
+    "flake8",
+    "isort",
+    "mypy",
+    "build",
+    "pytest",
+    "pytest-cov",
+    "types-paho-mqtt",
+]
+mqtt = ["paho-mqtt >=1.6,<2"]
