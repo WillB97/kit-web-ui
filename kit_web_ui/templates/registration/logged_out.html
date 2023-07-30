@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}Logout | Robot UI{% endblock %}
+
+{% block generated %}{% endblock %}
+
+{% block content %}
+    <div class="alert alert-success">
+        You are now logged out.
+    </div>
+
+    <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
+{% endblock %}

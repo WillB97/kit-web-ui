@@ -78,7 +78,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# LOGIN_REDIRECT_URL = "/"
+LOGIN_REDIRECT_URL = "/"
 SESSION_COOKIE_SECURE = True
 
 
