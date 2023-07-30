@@ -10,7 +10,7 @@ class Broker(models.Model):
         ordering = ["name"]
         default_permissions = ()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.name} ({self.host})"
 
 
@@ -29,10 +29,10 @@ class BrokerListener(models.Model):
         ordering = ["name"]
         default_permissions = ()
 
-    def generate_url(self):
+    def generate_url(self) -> str:
         return f"{self.protocol}://{self.broker.host}:{self.port}"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.name} ({self.generate_url()})"
 
 
@@ -50,14 +50,17 @@ class MqttConfig(models.Model):
         ordering = ["name"]
         default_permissions = ()
 
-    def generate_url(self):
-        return (
-            f"{self.broker.protocol}://{self.username}:{self.password}@"
-            f"{self.broker.broker.host}:{self.broker.port}"
-        )
+    def generate_url(self) -> str:
+        if not self.broker:
+            return "<no broker selected>"
+        else:
+            return (
+                f"{self.broker.protocol}://{self.username}:{self.password}@"
+                f"{self.broker.broker.host}:{self.broker.port}"
+            )
 
-    def generate_full_url(self):
+    def generate_full_url(self) -> str:
         return f"{self.generate_url()}/{self.topic_root}"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name

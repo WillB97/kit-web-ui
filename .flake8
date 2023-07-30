@@ -11,3 +11,6 @@ ignore =
     W503, W504,
     # Ignore TODO comments
     T000,
+
+exclude =
+    kit_web_ui/migrations

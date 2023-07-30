@@ -1,16 +1,24 @@
+from __future__ import annotations
+
 from datetime import datetime, timezone
+from typing import cast
 
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.http import (
+    HttpRequest, HttpResponse, HttpResponsePermanentRedirect,
+    HttpResponseRedirect, JsonResponse,
+)
+from django.shortcuts import redirect, render
 
 from .models import MqttConfig
 
+HttpRedirect = HttpResponseRedirect | HttpResponsePermanentRedirect
+
 
 @login_required
-def index(request):
+def index(request: HttpRequest) -> HttpResponse | HttpRedirect:
     if request.user.is_staff:
         return render(
             request,
@@ -26,14 +34,14 @@ def index(request):
 
 @login_required
 @staff_member_required
-def config(request):
+def config(request: HttpRequest) -> JsonResponse:
     if request.GET.get("user"):
         try:
             user = User.objects.get(username=request.GET["user"])
         except User.DoesNotExist:
             return JsonResponse({"error": "User not found"}, status=404)
     else:
-        user = request.user
+        user = cast(User, request.user)
 
     try:
         config = user.mqtt_config
@@ -48,14 +56,14 @@ def config(request):
 
 
 @login_required
-def load_ui(request):
+def load_ui(request: HttpRequest) -> HttpResponse:
     if request.user.is_staff and request.GET.get("team"):
         try:
             user = User.objects.get(username=request.GET["team"])
         except User.DoesNotExist:
             user = request.user
     else:
-        user = request.user
+        user = cast(User, request.user)
 
     try:
         config = user.mqtt_config
