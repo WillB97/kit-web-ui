@@ -132,3 +132,4 @@ _version.py
 
 env
 dev_env
+mosquitto/mosquitto_passwd
