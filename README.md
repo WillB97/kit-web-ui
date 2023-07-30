@@ -47,3 +47,49 @@ pip install build
 make build
 ```
 
+## Deployment
+Deploying on Ubuntu 22.04.
+
+Install dependencies
+```bash
+sudo apt install nginx uwsgi uwsgi-plugin-python3 python3.10-dev python3.10-venv
+```
+
+Create a virtualenv under /srv
+```bash
+mkdir /srv && cd /srv
+python3.10 -m venv venv
+```
+
+Install the package, wheel is required for the dependencies
+```bash
+. ./venv/bin/activate
+pip install --upgrade pip wheel
+pip install kit-web-ui-x.y.z.whl
+```
+
+Copy all the files in the systemd folder to `/etc/systemd/system/`
+
+Put SSL certificate and key in `/srv/kit-web-ui/certificates/`
+
+Setup nginx
+```bash
+sudo cp kit-web-ui.nginx /etc/nginx/sites-enabled/kit-web-ui.conf
+sudo rm /etc/nginx/sites-enabled/default
+```
+
+Copy `env.example` to `/srv/kit-web-ui/django-env.env` and populate the fields.
+
+Start the services that don't immediately connect to the database
+```bash
+systemctl daemon-reload && systemctl enable --now nginx uwsgi@kit-web-ui.socket
+```
+
+Allow django to generate the database and collect up static files to be served
+```bash
+source /srv/kit-web-ui/django-env.env
+PYTHONPATH=/srv/kit-web-ui/ django-admin migrate
+PYTHONPATH=/srv/kit-web-ui/ django-admin collectstatic
+```
+
+The webserver will start when the webpage is first visited.

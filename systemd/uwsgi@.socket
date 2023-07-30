@@ -1,0 +1,10 @@
+[Unit]
+
+[Socket]
+ListenStream=/run/%i.socket
+SocketGroup=www-data
+SocketMode=0660
+Service=uwsgi@%i.service
+
+[Install]
+WantedBy=sockets.target
