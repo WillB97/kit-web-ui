@@ -10,6 +10,7 @@ from time import sleep, time
 import paho.mqtt.client as mqtt
 
 IMAGE_DATA = []
+PROGRESS_COUNT = 0
 
 
 def progress(indicator):
@@ -46,8 +47,8 @@ class MQTT():
         self.mqtt.disconnect()
         self.mqtt.loop_stop()
 
-    def publish(self, topic, payload):
-        self.mqtt.publish(topic, payload, qos=0)
+    def publish(self, topic, payload, qos=0, retain=False):
+        self.mqtt.publish(topic, payload, qos=qos, retain=retain)
 
 
 def main():
@@ -79,6 +80,10 @@ def main():
     mqtt = MQTT(args.host, args.port, args.use_tls, args.username, args.password)
 
     try:
+        mqtt.publish(
+            f'{args.topic_root}/connected', '{"state": "connected"}', qos=1, retain=True)
+        mqtt.mqtt.will_set(
+            f'{args.topic_root}/connected', '{"state": "disconnected"}', qos=1, retain=True)
         for i in count():
             mqtt.publish(f'{args.topic_root}/logs', json.dumps(
                 {
@@ -93,7 +98,8 @@ def main():
                 mqtt.publish(f'{args.topic_root}/camera/annotated', IMAGE_DATA[image])
             sleep(1)
     except KeyboardInterrupt:
-        pass
+        mqtt.publish(
+            f'{args.topic_root}/connected', '{"state": "disconnected"}', qos=1, retain=True)
 
 
 if __name__ == '__main__':
