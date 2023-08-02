@@ -4,7 +4,6 @@
 ExecStart=/srv/%i/venv/bin/uwsgi --chdir /srv/%i --static-map=/static=/srv/%i/static --module='django.core.wsgi:get_wsgi_application()' --processes 5 --die-on-idle --idle=604800 --socket=/run/%i.socket --die-on-term --venv /srv/%i/venv
 ExecReload=/bin/kill -HUP $MAINPID
 WorkingDirectory=/srv/%i
-DynamicUser=yes
 Type=notify
 NotifyAccess=all
 EnvironmentFile=/srv/%i/django-env.env

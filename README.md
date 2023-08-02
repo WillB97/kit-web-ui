@@ -52,19 +52,19 @@ Deploying on Ubuntu 22.04.
 
 Install dependencies
 ```bash
-sudo apt install nginx uwsgi uwsgi-plugin-python3 python3.10-dev python3.10-venv
+sudo apt install nginx uwsgi uwsgi-plugin-python3 python3.10-dev python3.10-venv build-essential
 ```
 
-Create a virtualenv under /srv
+Create a virtualenv under /srv/kit-web-ui
 ```bash
-mkdir /srv && cd /srv
+mkdir -p /srv/kit-web-ui && cd /srv/kit-web-ui
 python3.10 -m venv venv
 ```
 
 Install the package, wheel is required for the dependencies
 ```bash
 . ./venv/bin/activate
-pip install --upgrade pip wheel
+pip install --upgrade pip wheel uwsgi
 pip install kit-web-ui-x.y.z.whl
 ```
 
@@ -87,12 +87,19 @@ systemctl daemon-reload && systemctl enable --now nginx uwsgi@kit-web-ui.socket
 
 Allow django to generate the database and collect up static files to be served
 ```bash
+set -o allexport
 source /srv/kit-web-ui/django-env.env
+set +o allexport
 PYTHONPATH=/srv/kit-web-ui/ django-admin migrate
 PYTHONPATH=/srv/kit-web-ui/ django-admin collectstatic
 ```
 
 The webserver will start when the webpage is first visited.
+
+Create the superuser
+```bash
+PYTHONPATH=/srv/kit-web-ui/ django-admin createsuperuser
+```
 
 ## Mosquitto setup
 
@@ -106,5 +113,15 @@ Copy `mosquitto_acl.conf` to `/srv/kit-web-ui/mosquitto_acl.conf` from the mosqu
 
 Create the mosquitto password file
 ```bash
+sudo mosquitto_passwd -c /srv/kit-web-ui/mosquitto_passwd <username>
+```
+
+For any additional users, use the following command
+```bash
 sudo mosquitto_passwd /srv/kit-web-ui/mosquitto_passwd <username>
+```
+
+Fix certificate permissions and restart mosquitto
+```bash
+sudo systemctl restart mosquitto
 ```
