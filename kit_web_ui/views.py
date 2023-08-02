@@ -79,7 +79,7 @@ def load_ui(request: HttpRequest) -> HttpResponse:
 
     return render(
         request,
-        "base.html",  # TODO: Change this to the actual UI
+        "ui.html",
         {
             "broker_url": config.generate_url(),
             "topic_root": config.topic_root,

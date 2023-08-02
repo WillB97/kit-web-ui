@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#3270ed">
+    <title>Robot</title>
+    <link rel="stylesheet" href="{% static 'index.d7948a34.css' %}">
+    <link rel="stylesheet" href="{% static 'index.b3802c99.css' %}">
+    <link rel="icon shortcut" href="{% static 'favicon.5b1fb57c.svg' %}" type="image/svg+xml">
+    <script lang="javascript">MQTT_SERVER = "{{ broker_url }}", MQTT_TOPIC = "{{ topic_root |default:"" }}/#";</script>
+</head>
+
+<body>
+    <div class="controls" id="controls">
+        <div class="control-buttons field has-addons">
+            <p class="control"> <button class="button" data-action="clearLog" title="Clear log"> <span
+                        class="has-text-link icon"> <span class="mdi mdi-24px mdi-delete-sweep"></span> </span>
+                </button> </p>
+        </div>
+        <p id="status"></p>
+        <div class="field is-grouped metadata-selectors">
+            <div class="control"> <span id="theme-toggle" tabindex="0" class="button" style="display:none"> <span
+                        class="has-text-link icon"> <span id="toggle-theme-icon" class="mdi mdi-24px"></span> </span>
+                </span> </div>
+            <div class="control"> <span tabindex="0" class="button modal-trigger" data-target="modal-camera"> <span
+                        class="has-text-link icon"> <span class="mdi mdi-24px mdi-camera"> </span> </span> </span></div>
+        </div>
+        <div class="mobile-metadata-toggle">
+            <div class="control"> <span tabindex="0" class="button modal-trigger" data-target="modal-info"> <span
+                        class="has-text-link icon"> <span class="mdi mdi-24px mdi-information"> </span> </span> </span>
+            </div>
+            <div class="control"> <span tabindex="0" class="button modal-trigger" data-target="modal-camera"> <span
+                        class="has-text-link icon"> <span class="mdi mdi-24px mdi-camera"> </span> </span> </span></div>
+            <div class="control"> <span id="mobile-theme-toggle" tabindex="0" class="button" style="display:none"> <span
+                        class="has-text-link icon"> <span id="mobile-toggle-theme-icon" class="mdi mdi-24px"></span>
+                    </span> </span> </div>
+        </div>
+    </div>
+    <div class="log-list" id="log"></div>
+    <div class="is-active modal" id="modal-disconnected">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <section class="modal-card-body">
+                <h1 class="title">Connecting to robot&hellip;</h1>
+                <p> If you find this is taking longer than a minute to connect, try refreshing the page or power cycling
+                    your robot. If issues persist, please ask your mentor. </p> <progress id="serviceProgress"
+                    class="is-primary progress" max="2"></progress>
+            </section>
+        </div>
+    </div>
+    <div class="modal" id="modal-camera">
+        <div class="modal-background modal-background-close"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">Last Image Captured</p> <button class="delete" aria-label="close"></button>
+            </header>
+            <section class="modal-card-body">
+                <p id="no-annotated-image-instructions"> Use <code>R.camera.see()</code> in your robot code to see an
+                    annotated image. </p> <img id="last-annotated-image">
+            </section>
+        </div>
+    </div> <template id="tpl-log-entry">
+        <div class="log-entry">
+            <div class="is-narrow log-entry__ts"></div>
+            <div class="log-entry__content"></div>
+        </div>
+    </template>
+    <script src="{% static 'index.f6615cfa.js' %}" type="module"></script>
+</body>
+
+</html>
