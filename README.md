@@ -70,7 +70,7 @@ pip install kit-web-ui-x.y.z.whl
 
 Copy all the files in the systemd folder to `/etc/systemd/system/`
 
-Put SSL certificate and key in `/srv/kit-web-ui/certificates/`
+Put SSL certificate and key in `/srv/kit-web-ui/certificates/` and name them `cert.pem`, `chain.pem` and `key.pem` respectively.
 
 Setup nginx
 ```bash
@@ -93,3 +93,18 @@ PYTHONPATH=/srv/kit-web-ui/ django-admin collectstatic
 ```
 
 The webserver will start when the webpage is first visited.
+
+## Mosquitto setup
+
+Install mosquitto
+```bash
+sudo apt install mosquitto
+```
+
+Copy `mosquitto.conf` to `/etc/mosquitto/conf.d/kit-web-ui.conf` from the mosquitto folder in this repo.
+Copy `mosquitto_acl.conf` to `/srv/kit-web-ui/mosquitto_acl.conf` from the mosquitto folder in this repo.
+
+Create the mosquitto password file
+```bash
+sudo mosquitto_passwd /srv/kit-web-ui/mosquitto_passwd <username>
+```
