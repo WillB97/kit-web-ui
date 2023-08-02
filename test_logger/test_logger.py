@@ -95,7 +95,7 @@ def main():
                 progress('i')
                 # publish image
                 image = (i // 10) % len(IMAGE_DATA)
-                mqtt.publish(f'{args.topic_root}/camera/annotated', IMAGE_DATA[image])
+                mqtt.publish(f'{args.topic_root}/camera/annotated', json.dumps({"data": IMAGE_DATA[image]}))
             sleep(1)
     except KeyboardInterrupt:
         mqtt.publish(
