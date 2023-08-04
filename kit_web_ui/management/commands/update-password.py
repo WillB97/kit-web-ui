@@ -27,6 +27,7 @@ class Command(BaseCommand):
                     clean_word.lower()
                     for word in wordlist
                     if len(clean_word := word.strip()) > 4
+                    and len(clean_word) < 10
                     and clean_word.isalpha()
                 ]
 
