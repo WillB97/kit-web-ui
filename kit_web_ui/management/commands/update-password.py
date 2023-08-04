@@ -11,14 +11,14 @@ from django.core.management.base import BaseCommand, CommandError
 class Command(BaseCommand):
     help = 'Generate team accounts and MQTT credentials'
 
-    def add_arguments(self, parser):
+    def add_arguments(self, parser) -> None:  # type: ignore
         parser.add_argument('--user', required=True, type=str, help='Broker listener name')
         parser.add_argument(
             '--wordlist', type=str, help=(
                 'Word list for password generation. If not specified, passwords will be '
                 'randomly generated. i.e. /usr/share/dict/british-english'))
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options) -> None:  # type: ignore
         from django.contrib.auth.models import User
 
         if options['wordlist']:
@@ -42,7 +42,7 @@ class Command(BaseCommand):
 
         self.stdout.write("Done")
 
-    def generate_password(self):
+    def generate_password(self) -> str:
         from secrets import choice
         from string import ascii_letters, digits
 

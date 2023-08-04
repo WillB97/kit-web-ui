@@ -13,15 +13,16 @@ from django.core.management.base import BaseCommand, CommandError
 class Command(BaseCommand):
     help = 'Populate the mosquitto password file'
 
-    def add_arguments(self, parser):
+    def add_arguments(self, parser) -> None:  # type: ignore
         parser.add_argument('passwd_file', type=str, help='Path to the passwd file')
         parser.add_argument(
             '--reload-broker', action='store_true',
             help='Reload the mosquitto broker after updating the passwd file')
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options) -> None:  # type: ignore
         import os
         from pathlib import Path
+
         from kit_web_ui.models import MqttConfig
 
         passwd_file = options['passwd_file']

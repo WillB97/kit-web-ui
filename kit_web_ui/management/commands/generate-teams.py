@@ -16,7 +16,7 @@ from django.core.management.base import BaseCommand
 class Command(BaseCommand):
     help = 'Generate team accounts and MQTT credentials'
 
-    def add_arguments(self, parser):
+    def add_arguments(self, parser) -> None:  # type: ignore
         parser.add_argument('--broker', required=True, type=str, help='Broker listener name')
         parser.add_argument(
             '--wordlist', type=str, help=(
@@ -25,10 +25,12 @@ class Command(BaseCommand):
         parser.add_argument(
             '--num-teams', type=int, default=10, help='Number of teams to create')
 
-    def handle(self, *args, **options):
-        from django.contrib.auth.models import User
-        from kit_web_ui.models import BrokerListener, MqttConfig
+    def handle(self, *args, **options) -> None:  # type: ignore
         from secrets import token_urlsafe
+
+        from django.contrib.auth.models import User
+
+        from kit_web_ui.models import BrokerListener, MqttConfig
 
         broker = BrokerListener.objects.get(name=options['broker'])
 
@@ -59,7 +61,7 @@ class Command(BaseCommand):
 
         self.stdout.write("Done")
 
-    def generate_password(self):
+    def generate_password(self) -> str:
         from secrets import choice
         from string import ascii_letters, digits
 
