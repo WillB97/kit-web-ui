@@ -25,8 +25,13 @@ def progress(indicator):
 
 
 class MQTT():
-    def __init__(self, host, port=1883, use_tls=False, username='', password=''):
+    def __init__(
+        self, host, port=1883, use_tls=False, username='', password='', topic_root=''
+    ):
         self.mqtt = mqtt.Client()
+
+        self._topic_root = topic_root
+        self.mqtt.on_connect = self._on_connect
 
         if use_tls:
             self.mqtt.tls_set()
@@ -35,6 +40,9 @@ class MQTT():
 
         if username:
             self.mqtt.username_pw_set(username, password)
+
+        self.mqtt.will_set(
+            f'{self._topic_root}/connected', '{"state": "disconnected"}', qos=1, retain=True)
 
         try:
             self.mqtt.connect(host=host, port=port, keepalive=60)
@@ -49,6 +57,10 @@ class MQTT():
 
     def publish(self, topic, payload, qos=0, retain=False):
         self.mqtt.publish(topic, payload, qos=qos, retain=retain)
+
+    def _on_connect(self, client, userdata, flags, rc, properties=None):
+        client.publish(
+            f'{self._topic_root}/connected', '{"state": "connected"}', qos=1, retain=True)
 
 
 def main():
@@ -77,13 +89,10 @@ def main():
             (Path(__file__).parent / f'img-{i:02d}.jpg.txt').read_text(encoding='utf-8')
         )
 
-    mqtt = MQTT(args.host, args.port, args.use_tls, args.username, args.password)
+    mqtt = MQTT(
+        args.host, args.port, args.use_tls, args.username, args.password, args.topic_root)
 
     try:
-        mqtt.publish(
-            f'{args.topic_root}/connected', '{"state": "connected"}', qos=1, retain=True)
-        mqtt.mqtt.will_set(
-            f'{args.topic_root}/connected', '{"state": "disconnected"}', qos=1, retain=True)
         for i in count():
             mqtt.publish(f'{args.topic_root}/logs', json.dumps(
                 {
@@ -95,11 +104,14 @@ def main():
                 progress('i')
                 # publish image
                 image = (i // 10) % len(IMAGE_DATA)
-                mqtt.publish(f'{args.topic_root}/camera/annotated', json.dumps({"data": IMAGE_DATA[image]}))
+                mqtt.publish(
+                    f'{args.topic_root}/camera/annotated',
+                    json.dumps({"data": IMAGE_DATA[image]}))
             sleep(1)
     except KeyboardInterrupt:
         mqtt.publish(
             f'{args.topic_root}/connected', '{"state": "disconnected"}', qos=1, retain=True)
+        print()
 
 
 if __name__ == '__main__':
