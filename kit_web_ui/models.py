@@ -1,5 +1,13 @@
+import datetime
+import logging
+
 from django.conf import settings
+from django.contrib.auth import (
+    user_logged_in, user_logged_out, user_login_failed,
+)
+from django.contrib.auth.models import User
 from django.db import models
+from django.dispatch import receiver
 
 
 class Broker(models.Model):
@@ -64,3 +72,88 @@ class MqttConfig(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+
+class AuditEvent(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name="audit_events_performed",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+    )
+    date = models.DateTimeField()
+    target_other = models.CharField(max_length=32, null=True, blank=True)
+    action = models.CharField(max_length=32)
+    code = models.CharField(max_length=32)
+    extra_data = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        ordering = ["-date"]
+        get_latest_by = ["date"]
+        default_permissions = ()
+
+    def clean(self):
+        if self.extra_data is None:
+            self.extra_data = {}
+
+    def __str__(self):
+        return f"{self.date} {self.user} {self.action} {self.code}"
+
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+
+@receiver(user_logged_in)
+def user_logged_in_callback(sender, request, user, **kwargs):
+    ip = get_client_ip(request)
+    AuditEvent.objects.create(
+        action="login",
+        user=user,
+        code="succeeded",
+        date=datetime.datetime.now(tz=datetime.timezone.utc),
+        extra_data={"ip": ip},
+    )
+
+
+@receiver(user_logged_out)
+def user_logged_out_callback(sender, request, user, **kwargs):
+    ip = get_client_ip(request)
+    AuditEvent.objects.create(
+        action="logout",
+        user=user,
+        code="succeeded",
+        date=datetime.datetime.now(tz=datetime.timezone.utc),
+        extra_data={"ip": ip},
+    )
+
+
+@receiver(user_login_failed)
+def user_login_failed_callback(sender, credentials, request, **kwargs):
+    try:
+        user = User.objects.get(username=credentials["username"])
+    except Exception:
+        logging.error(f"Login attempt for unknown user {credentials.get('username')}")
+        ip = get_client_ip(request)
+        AuditEvent.objects.create(
+            action="login",
+            target_other=credentials.get('username'),
+            code="forbidden",
+            date=datetime.datetime.now(tz=datetime.timezone.utc),
+            extra_data={"ip": ip},
+        )
+    else:
+        ip = get_client_ip(request)
+        AuditEvent.objects.create(
+            action="login",
+            user=user,
+            code="forbidden",
+            date=datetime.datetime.now(tz=datetime.timezone.utc),
+            extra_data={"ip": ip},
+        )

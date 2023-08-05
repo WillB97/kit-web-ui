@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Broker, BrokerListener, MqttConfig
+from .models import Broker, BrokerListener, MqttConfig, AuditEvent
 
 
 class BrokerAdmin(admin.ModelAdmin):
@@ -23,6 +23,13 @@ class MqttConfigAdmin(admin.ModelAdmin):
     search_fields = ("name", "user__username", "broker__name", "broker__broker__host")
 
 
+class AuditEventAdmin(admin.ModelAdmin):
+    list_display = ("date", "user", "action", "code", "extra_data", "target_other")
+    list_filter = ("date", "user", "action", "code")
+    search_fields = ("name", "user__username", "broker__name", "extra_data__ip")
+
+
 admin.site.register(Broker, BrokerAdmin)
 admin.site.register(BrokerListener, BrokerListenerAdmin)
 admin.site.register(MqttConfig, MqttConfigAdmin)
+admin.site.register(AuditEvent, AuditEventAdmin)
