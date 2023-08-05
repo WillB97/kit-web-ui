@@ -4,6 +4,9 @@ export DJANGO_SECRET_KEY=""
 export DJANGO_DEBUG=true
 # export DJANGO_ALLOWED_HOSTS='*'
 
+# A file of words to use in memorable passwords
+export WORDLIST=""
+
 export DJANGO_SETTINGS_MODULE=kit_web_ui.settings
 export PYTHONPATH="$app_root"
 

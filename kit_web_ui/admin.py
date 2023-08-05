@@ -1,6 +1,9 @@
-from django.contrib import admin
+from django.conf import settings
+from django.contrib import admin, messages
+from django.contrib.auth.admin import UserAdmin
 
-from .models import Broker, BrokerListener, MqttConfig, AuditEvent
+from .models import AuditEvent, Broker, BrokerListener, MqttConfig
+from .utils import generate_password, generate_wordlist
 
 
 class BrokerAdmin(admin.ModelAdmin):
@@ -29,6 +32,39 @@ class AuditEventAdmin(admin.ModelAdmin):
     search_fields = ("name", "user__username", "broker__name", "extra_data__ip")
 
 
+@admin.action(description="Enable selected users")
+def make_active(modeladmin, request, queryset):
+    queryset.update(is_active=True)
+
+
+@admin.action(description="Disable selected users")
+def make_inactive(modeladmin, request, queryset):
+    queryset.update(is_active=False)
+
+
+@admin.action(description="Regenerate selected users passwords")
+def regenerate_passwords(modeladmin: admin.ModelAdmin, request, queryset):
+    if settings.KIT_UI['WORDLIST']:
+        wordlist = generate_wordlist(settings.KIT_UI['WORDLIST'])
+    else:
+        wordlist = None
+
+    for user in queryset:
+        new_password = generate_password(wordlist)
+
+        # update password
+        user.set_password(new_password)
+        user.save()
+
+        # print the password in the admin interface
+        modeladmin.message_user(
+            request,
+            f"Password for {user} set to {new_password}.",
+            messages.INFO
+        )
+
+
+UserAdmin.actions = [*UserAdmin.actions, make_active, make_inactive, regenerate_passwords]
 admin.site.register(Broker, BrokerAdmin)
 admin.site.register(BrokerListener, BrokerListenerAdmin)
 admin.site.register(MqttConfig, MqttConfigAdmin)
