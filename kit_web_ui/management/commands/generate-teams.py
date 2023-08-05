@@ -34,23 +34,19 @@ class Command(BaseCommand):
         from django.contrib.auth.models import User
 
         from kit_web_ui.models import BrokerListener, MqttConfig
+        from kit_web_ui.utils import generate_wordlist, generate_password
 
         details = []
         broker = BrokerListener.objects.get(name=options['broker'])
 
         if options['wordlist']:
-            with open(options['wordlist']) as wordlist:
-                self.wordlist = [
-                    clean_word.lower()
-                    for word in wordlist
-                    if len(clean_word := word.strip()) > 4
-                    and len(clean_word) < 10
-                    and clean_word.isalpha()
-                ]
+            wordlist = generate_wordlist(options['wordlist'])
+        else:
+            wordlist = None
 
         for team in range(1, options['num_teams'] + 1):
             username = f"team{team}"
-            password = self.generate_password()
+            password = generate_password(wordlist)
             user = User.objects.create_user(username, password=password)
             user.save()
             mqtt_password = token_urlsafe()
@@ -77,12 +73,3 @@ class Command(BaseCommand):
                 writer.writerows(details)
 
         self.stdout.write("Done")
-
-    def generate_password(self) -> str:
-        from secrets import choice
-        from string import ascii_letters, digits
-
-        if hasattr(self, 'wordlist'):
-            return '-'.join(choice(self.wordlist) for _ in range(2))
-        else:
-            return ''.join(choice(ascii_letters + digits) for _ in range(12))

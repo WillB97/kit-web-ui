@@ -20,34 +20,21 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options) -> None:  # type: ignore
         from django.contrib.auth.models import User
+        from kit_web_ui.utils import generate_wordlist, generate_password
 
         if options['wordlist']:
-            with open(options['wordlist']) as wordlist:
-                self.wordlist = [
-                    clean_word.lower()
-                    for word in wordlist
-                    if len(clean_word := word.strip()) > 4
-                    and len(clean_word) < 10
-                    and clean_word.isalpha()
-                ]
+            wordlist = generate_wordlist(options['wordlist'])
+        else:
+            wordlist = None
 
         try:
             user = User.objects.get(username=options['user'])
         except User.DoesNotExist:
             raise CommandError(f"User {options['user']} does not exist")
 
-        password = self.generate_password()
+        password = generate_password(wordlist)
         user.set_password(password)
         user.save()
         self.stdout.write(f"Updated password for {options['user']}: {password}")
 
         self.stdout.write("Done")
-
-    def generate_password(self) -> str:
-        from secrets import choice
-        from string import ascii_letters, digits
-
-        if hasattr(self, 'wordlist'):
-            return '-'.join(choice(self.wordlist) for _ in range(2))
-        else:
-            return ''.join(choice(ascii_letters + digits) for _ in range(12))
