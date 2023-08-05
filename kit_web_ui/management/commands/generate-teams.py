@@ -24,14 +24,18 @@ class Command(BaseCommand):
                 'randomly generated. i.e. /usr/share/dict/british-english'))
         parser.add_argument(
             '--num-teams', type=int, default=10, help='Number of teams to create')
+        parser.add_argument(
+            '--csv', type=str, help="Output generated details to the csv file")
 
     def handle(self, *args, **options) -> None:  # type: ignore
+        import csv
         from secrets import token_urlsafe
 
         from django.contrib.auth.models import User
 
         from kit_web_ui.models import BrokerListener, MqttConfig
 
+        details = []
         broker = BrokerListener.objects.get(name=options['broker'])
 
         if options['wordlist']:
@@ -49,16 +53,28 @@ class Command(BaseCommand):
             password = self.generate_password()
             user = User.objects.create_user(username, password=password)
             user.save()
+            mqtt_password = token_urlsafe()
             mqtt_config = MqttConfig.objects.create(
                 name=f"Team {team}",
                 user=user,
                 broker=broker,
                 username=username,
-                password=token_urlsafe(),
+                password=mqtt_password,
                 topic_root=username,
             )
             mqtt_config.save()
+            details.append({
+                'username': username, 'password': password, 'mqtt_password': mqtt_password})
             self.stdout.write(f"Created team {team}: {username} {password}")
+
+        if options['csv']:
+            with open(options['csv'], 'w', newline='') as f:
+                writer = csv.DictWriter(
+                    f,
+                    ['mac_addr', 'username', 'password', 'mqtt_password', 'wifi_password'],
+                )
+                writer.writeheader()
+                writer.writerows(details)
 
         self.stdout.write("Done")
 
