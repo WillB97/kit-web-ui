@@ -20,12 +20,33 @@ HttpRedirect = HttpResponseRedirect | HttpResponsePermanentRedirect
 @login_required
 def index(request: HttpRequest) -> HttpResponse | HttpRedirect:
     if request.user.is_staff:
+        configs = MqttConfig.objects.all()
+
+        # Sort teams so 10 appears after 9
+        configs_list = []
+        for config in configs:
+            order_key_parts = []
+            for part in config.name.split():
+                if part.isdecimal():
+                    part = f"{part:>04}"
+                order_key_parts.append(part)
+            order_key = '-'.join(order_key_parts)
+            configs_list.append({
+                'name': config.name,
+                'username': config.user.username,
+                'last_login': config.user.last_login,
+                'broker': config.broker,
+                'order_key': order_key,
+            })
+
+        configs_list.sort(key=lambda x: x['order_key'])
+
         return render(
             request,
             "team_select.html",
             {
                 "now": datetime.now(timezone.utc),
-                "teams": MqttConfig.objects.all(),
+                "teams": configs_list,
             },
         )
     else:
