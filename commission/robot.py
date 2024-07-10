@@ -29,24 +29,7 @@ def provision(mac_addr):
     # create a temporary directory to generate the files in
     with TemporaryDirectory() as tmpdirname:
         tmpdir = Path(tmpdirname)
-        with open(tmpdir / 'wpa_supplicant.conf', 'w') as f:
-            f.writelines([
-                'ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\n',
-                'update_config=1\n',
-                'country=GB\n',
-                '\n',
-                'network={\n',
-                '    ssid="SOTON-IOT"\n',
-                f'    psk="{dev_details.get("wifi_password", "00000000")}"\n',
-                '    key_mgmt=WPA-PSK\n',
-                '}\n',
-                '\n',
-                'network={\n',
-                '    ssid="robots"\n',
-                f'    psk="{ROBOT_WIFI_PASSWORD}>"\n',
-                '    key_mgmt=WPA-PSK\n',
-                '}\n',
-            ])
+        # write the mqtt config
         with open(tmpdir / 'mqtt.conf', 'w') as f:
             f.writelines([
                 '{\n',
@@ -59,7 +42,13 @@ def provision(mac_addr):
                 '}\n',
             ])
 
-        os.system(f'sudo mv {tmpdirname}/wpa_supplicant.conf /boot/')
+        # configure the network
+        if wifi_password := dev_details.get("wifi_password"):
+            os.system('sudo nmcli connection add type wifi ifname wlan0 con-name SOTON-IoT ssid SOTON-IoT')
+            os.system(f'sudo nmcli connection modify SOTON-IoT wifi-sec.key-mgmt wpa-psk wifi-sec.psk {wifi_password}')
+        os.system('sudo nmcli connection add type wifi ifname wlan0 con-name robots ssid robots')
+        os.system(f'sudo nmcli connection modify robots wifi-sec.key-mgmt wpa-psk wifi-sec.psk {ROBOT_WIFI_PASSWORD}')
+
         os.system('sudo mkdir -p /etc/sbot/')
         os.system(f'sudo mv {tmpdirname}/mqtt.conf /etc/sbot/')
         os.system('sudo reboot')
