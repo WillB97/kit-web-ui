@@ -3,14 +3,13 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import cast
 
-from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import (
     HttpRequest, HttpResponse, HttpResponsePermanentRedirect,
     HttpResponseRedirect, JsonResponse,
 )
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, resolve_url
 
 from .models import MqttConfig
 
@@ -54,9 +53,8 @@ def index(request: HttpRequest) -> HttpResponse | HttpRedirect:
 
 
 @login_required
-@staff_member_required
 def config(request: HttpRequest) -> JsonResponse:
-    if request.GET.get("user"):
+    if request.user.is_staff and request.GET.get("user"):
         try:
             user = User.objects.get(username=request.GET["user"])
         except User.DoesNotExist:
@@ -65,7 +63,7 @@ def config(request: HttpRequest) -> JsonResponse:
         user = cast(User, request.user)
 
     try:
-        config = user.mqtt_config
+        config: MqttConfig = user.mqtt_config
     except MqttConfig.DoesNotExist:
         return JsonResponse({"error": "User has no MQTT config"}, status=404)
 
@@ -73,6 +71,7 @@ def config(request: HttpRequest) -> JsonResponse:
         "django_user": user.username,
         "broker_url": config.generate_url(),
         "topic_root": config.topic_root,
+        "logout_url": resolve_url('logout'),
     })
 
 
@@ -87,7 +86,7 @@ def load_ui(request: HttpRequest) -> HttpResponse:
         user = cast(User, request.user)
 
     try:
-        config = user.mqtt_config
+        config: MqttConfig = user.mqtt_config
     except MqttConfig.DoesNotExist:
         return render(
             request,
