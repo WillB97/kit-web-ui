@@ -21,8 +21,10 @@ SECRET_KEY = environ.get("DJANGO_SECRET_KEY")
 DEBUG = environ.get("DJANGO_DEBUG", default="false").lower() == "true"
 
 # Populate with a list of all configured hostnames on the server
-ALLOWED_HOSTS = [host.strip() for host in environ.get(
-    "DJANGO_ALLOWED_HOSTS", default="*").split(",")]
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in environ.get("DJANGO_ALLOWED_HOSTS", default="*").split(",")
+]
 
 # Application definition
 INSTALLED_APPS = [
@@ -64,12 +66,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'kit_web_ui.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if environ.get('USE_POSTGRES', default="false").lower() == "true":
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": environ.get("POSTGRES_DB", "postgres"),
+            "USER": environ.get("POSTGRES_USER", "postgres"),
+            "PASSWORD": environ.get("POSTGRES_PASSWORD", "postgres"),
+            "HOST": environ.get("POSTGRES_HOST", "localhost"),
+            "PORT": environ.get("POSTGRES_PORT", "5432"),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},

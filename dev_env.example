@@ -9,5 +9,6 @@ export WORDLIST=""
 
 export DJANGO_SETTINGS_MODULE=kit_web_ui.settings
 export PYTHONPATH="$app_root"
+export USE_POSTGRES=false
 
 source venv/bin/activate
