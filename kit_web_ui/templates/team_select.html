@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Team Select | Robot UI{% endblock %}
 
@@ -16,7 +17,7 @@
                     Broker: {{ team.broker }}<br>
                 </p>
                 <div class="d-grid gap-2">
-                    <a href="{% url 'load_ui' %}?team={{ team.username }}" class="btn btn-outline-primary stretched-link">Select</a>
+                    <a href="{% static 'ui/index.html' %}?user={{ team.username }}" class="btn btn-outline-primary stretched-link">Select</a>
                 </div>
             </div>
         </div>

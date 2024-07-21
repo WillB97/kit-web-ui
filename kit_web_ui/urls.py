@@ -27,5 +27,4 @@ urlpatterns = [
     path("", views.index, name="index"),
     path("config", views.config, name="config"),
     path("config.json", views.config, name="config"),
-    path("load_ui", views.load_ui, name="load_ui"),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

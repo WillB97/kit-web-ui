@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import cast
 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import (
@@ -49,7 +50,7 @@ def index(request: HttpRequest) -> HttpResponse | HttpRedirect:
             },
         )
     else:
-        return redirect("load_ui")
+        return redirect(settings.STATIC_URL + "ui/index.html")
 
 
 @login_required
@@ -73,35 +74,3 @@ def config(request: HttpRequest) -> JsonResponse:
         "topic_root": config.topic_root,
         "logout_url": resolve_url('logout'),
     })
-
-
-@login_required
-def load_ui(request: HttpRequest) -> HttpResponse:
-    if request.user.is_staff and request.GET.get("team"):
-        try:
-            user = User.objects.get(username=request.GET["team"])
-        except User.DoesNotExist:
-            user = request.user
-    else:
-        user = cast(User, request.user)
-
-    try:
-        config: MqttConfig = user.mqtt_config
-    except MqttConfig.DoesNotExist:
-        return render(
-            request,
-            "base.html",
-            {
-                "error": "User has no MQTT config",
-                "now": datetime.now(timezone.utc),
-            },
-        )
-
-    return render(
-        request,
-        "ui.html",
-        {
-            "broker_url": config.generate_url(),
-            "topic_root": config.topic_root,
-        },
-    )
