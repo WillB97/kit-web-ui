@@ -17,6 +17,15 @@ from .models import MqttConfig
 HttpRedirect = HttpResponseRedirect | HttpResponsePermanentRedirect
 
 
+def login_required_json(view_func):
+    def wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return JsonResponse({"error": "Not logged in"}, status=401)
+        return view_func(request, *args, **kwargs)
+
+    return wrapped_view
+
+
 @login_required
 def index(request: HttpRequest) -> HttpResponse | HttpRedirect:
     if request.user.is_staff:
@@ -53,7 +62,7 @@ def index(request: HttpRequest) -> HttpResponse | HttpRedirect:
         return redirect(settings.STATIC_URL + "ui/index.html")
 
 
-@login_required
+@login_required_json
 def config(request: HttpRequest) -> JsonResponse:
     if request.user.is_staff and request.GET.get("user"):
         try:
@@ -70,6 +79,7 @@ def config(request: HttpRequest) -> JsonResponse:
 
     return JsonResponse({
         "django_user": user.username,
+        "name": config.name,
         "broker_url": config.generate_url(),
         "topic_root": config.topic_root,
         "logout_url": resolve_url('logout'),
