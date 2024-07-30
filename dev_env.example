@@ -10,6 +10,11 @@ export WORDLIST=""
 export DJANGO_SETTINGS_MODULE=kit_web_ui.settings
 export PYTHONPATH="$app_root"
 export USE_POSTGRES=false
+# export POSTGRES_DB="postgres"
+# export POSTGRES_USER="postgres"
+# export POSTGRES_PASSWORD="postgres"
+# export POSTGRES_HOST="localhost"
+# export POSTGRES_PORT="5432"
 
 export MQTT_BROKER_HOST="localhost"
 export MQTT_BROKER_PORT=1883
