@@ -21,7 +21,7 @@ class BrokerListenerAdmin(admin.ModelAdmin):
 
 class MqttConfigAdmin(admin.ModelAdmin):
     select_related = True
-    list_display = ("name", "user", "broker", "username", "topic_root", "generate_full_url")
+    list_display = ("team_number", "name", "user", "broker", "username", "topic_root", "generate_full_url")
     list_filter = ("user", "broker", "topic_root")
     search_fields = ("name", "user__username", "broker__name", "broker__broker__host")
 

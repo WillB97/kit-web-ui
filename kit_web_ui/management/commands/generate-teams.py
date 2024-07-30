@@ -57,6 +57,7 @@ class Command(BaseCommand):
                 username=username,
                 password=mqtt_password,
                 topic_root=username,
+                team_number=team,
             )
             mqtt_config.save()
             details.append({

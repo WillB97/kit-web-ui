@@ -53,9 +53,10 @@ class MqttConfig(models.Model):
     username = models.CharField(max_length=200)
     password = models.CharField(max_length=200, default="", blank=True)
     topic_root = models.CharField(max_length=200)
+    team_number = models.IntegerField(default=100)
 
     class Meta:
-        ordering = ["name"]
+        ordering = ["team_number", "name"]
         default_permissions = ()
 
     def generate_url(self) -> str:
