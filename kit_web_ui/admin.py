@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin
 
-from .models import AuditEvent, Broker, BrokerListener, MqttConfig
+from .models import AuditEvent, Broker, BrokerListener, MqttConfig, MqttData
 from .utils import generate_password, generate_wordlist
 
 
@@ -24,6 +24,12 @@ class MqttConfigAdmin(admin.ModelAdmin):
     list_display = ("team_number", "name", "user", "broker", "username", "topic_root", "generate_full_url")
     list_filter = ("user", "broker", "topic_root")
     search_fields = ("name", "user__username", "broker__name", "broker__broker__host")
+
+
+class MqttDataAdmin(admin.ModelAdmin):
+    list_display = ("date", "config", "run_uuid", "subtopic", "payload")
+    list_filter = ("date", "run_uuid", "subtopic")
+    search_fields = ("run_uuid", "config__name", "subtopic")
 
 
 class AuditEventAdmin(admin.ModelAdmin):
@@ -68,4 +74,5 @@ UserAdmin.actions = [*UserAdmin.actions, make_active, make_inactive, regenerate_
 admin.site.register(Broker, BrokerAdmin)
 admin.site.register(BrokerListener, BrokerListenerAdmin)
 admin.site.register(MqttConfig, MqttConfigAdmin)
+admin.site.register(MqttData, MqttDataAdmin)
 admin.site.register(AuditEvent, AuditEventAdmin)

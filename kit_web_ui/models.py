@@ -75,6 +75,30 @@ class MqttConfig(models.Model):
         return self.name
 
 
+class MqttData(models.Model):
+    date = models.DateTimeField()
+    config = models.ForeignKey(
+        MqttConfig,
+        related_name='data',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    subtopic = models.CharField(max_length=200)
+    payload = models.JSONField()
+    run_uuid = models.CharField(max_length=32, default="", blank=True)
+
+    class Meta:
+        ordering = ["-date"]
+        default_permissions = ()
+
+    def __str__(self) -> str:
+        if self.config is None:
+            return f"{self.date} {self.subtopic}"
+        else:
+            return f"{self.date} {self.config.topic_root}{self.subtopic}"
+
+
 class AuditEvent(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
