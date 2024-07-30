@@ -119,3 +119,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 KIT_UI = {
     "WORDLIST": environ.get("WORDLIST", ''),
 }
+
+MQTT_BROKER = {
+    "HOST": environ.get("MQTT_BROKER_HOST", "localhost"),
+    "PORT": int(environ.get("MQTT_BROKER_PORT", "1883")),
+    "USERNAME": environ.get("MQTT_BROKER_USERNAME"),
+    "PASSWORD": environ.get("MQTT_BROKER_PASSWORD"),
+    "USE_TLS": {
+        'true': True,
+        'false': False,
+        'insecure': 'insecure',
+    }.get(environ.get("MQTT_BROKER_USE_TLS", "false").lower(), False),
+}

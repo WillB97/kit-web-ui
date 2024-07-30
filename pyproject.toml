@@ -79,4 +79,4 @@ dev = [
     "django-stubs[compatible-mypy]",
     "types-paho-mqtt",
 ]
-mqtt = ["paho-mqtt >=1.6,<2"]
+mqtt = ["paho-mqtt >=2,<3"]

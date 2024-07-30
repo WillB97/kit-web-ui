@@ -11,4 +11,10 @@ export DJANGO_SETTINGS_MODULE=kit_web_ui.settings
 export PYTHONPATH="$app_root"
 export USE_POSTGRES=false
 
+export MQTT_BROKER_HOST="localhost"
+export MQTT_BROKER_PORT=1883
+# export MQTT_BROKER_USERNAME=""
+# export MQTT_BROKER_PASSWORD=""
+export MQTT_BROKER_USE_TLS="false"
+
 source venv/bin/activate
