@@ -1,0 +1,14 @@
+[Unit]
+
+[Service]
+Type=simple
+Restart=on-failure
+WorkingDirectory=/srv/%i
+DynamicUser=yes
+Environment="PYTHONPATH=/srv/%i/"
+EnvironmentFile=/srv/%i/django-env.env
+
+ExecStart=/srv/%i/venv/bin/django-admin run-ingest
+
+[Install]
+WantedBy=multi-user.target
