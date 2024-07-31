@@ -16,9 +16,17 @@ if TYPE_CHECKING:
 
 from django.core.management.base import BaseCommand
 
+PROGRESS_COUNT = 0
+
 
 def progress(char: str = ".") -> None:
-    print(char, end="", flush=True)
+    global PROGRESS_COUNT
+    print(indicator, end="", flush=True)
+
+    PROGRESS_COUNT += 1
+    if PROGRESS_COUNT > 80:
+        PROGRESS_COUNT = 0
+        print()
 
 
 class Command(BaseCommand):
