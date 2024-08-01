@@ -96,7 +96,7 @@ class MqttData(models.Model):
         if self.config is None:
             return f"{self.date} {self.subtopic}"
         else:
-            return f"{self.date} {self.config.topic_root}{self.subtopic}"
+            return f"{self.date} {self.config.topic_root}/{self.subtopic}"
 
 
 class AuditEvent(models.Model):

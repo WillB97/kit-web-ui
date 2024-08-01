@@ -1,8 +1,14 @@
 from __future__ import annotations
 
+from collections import defaultdict
+from datetime import datetime
 from pathlib import Path
 from secrets import choice
 from string import ascii_letters, digits
+
+from django.db.models import Min, F
+
+from kit_web_ui.models import MqttData
 
 
 def generate_wordlist(word_file: str | Path) -> list[str]:
@@ -21,3 +27,22 @@ def generate_password(wordlist: list[str] | None = None) -> str:
         return '-'.join(choice(wordlist) for _ in range(2))
     else:
         return ''.join(choice(ascii_letters + digits) for _ in range(12))
+
+
+def get_run_data() -> dict[str, list[tuple[str, datetime]]]:
+    run_data = (
+        MqttData.objects
+        .filter(subtopic='state', payload__state__exact='Running')
+        .values(
+            'run_uuid',
+            team_name=F('config__name'),
+        )
+        .annotate(start=Min('date'))
+    )
+
+    runs = defaultdict(list)
+
+    for run_val in run_data:
+        runs[run_val['team_name']].append((run_val['run_uuid'], run_val['start']))
+
+    return dict(runs)
