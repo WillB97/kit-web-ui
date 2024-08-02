@@ -6,7 +6,7 @@ from pathlib import Path
 from secrets import choice
 from string import ascii_letters, digits
 
-from django.db.models import Min, F
+from django.db.models import Min, F, OuterRef, Subquery
 
 from kit_web_ui.models import MqttData
 
@@ -46,3 +46,22 @@ def get_run_data() -> dict[str, list[tuple[str, datetime]]]:
         runs[run_val['team_name']].append((run_val['run_uuid'], run_val['start']))
 
     return dict(runs)
+
+
+def get_robot_state() -> dict[str, str]:
+    newest_state = MqttData.objects.filter(config=OuterRef("id"), subtopic='state')
+    newest_connected = MqttData.objects.filter(config=OuterRef("id"), subtopic='connected')
+
+    state_data = MqttData.objects.annotate(
+        latest_state=Subquery(newest_state.values("payload__state")[:1]),
+        latest_connected=Subquery(newest_connected.values("payload__state")[:1]),
+    ).values('name', 'latest_state', 'latest_connected')
+
+    states = {}
+    for entry in state_data:
+        if entry['latest_connected'] is None or entry['latest_connected'] == 'disconnected':
+            states[entry['name']] = 'Disconnected'
+        else:
+            states[entry['name']] = entry['latest_state']
+
+    return states
