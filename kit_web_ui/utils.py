@@ -47,11 +47,21 @@ def get_run_data() -> dict[str, list[tuple[str, datetime]]]:
 
     return dict(runs)
 
+
 def get_robot_state():
     newest_state = MqttData.objects.filter(config=OuterRef("id"), subtopic='state')
     newest_connected = MqttData.objects.filter(config=OuterRef("id"), subtopic='connected')
 
-    MqttData.objects.annotate(
+    state_data = MqttData.objects.annotate(
         latest_state=Subquery(newest_state.values("payload__state")[:1]),
-        latest_connected=Subquery(newest_connected.values("payload__connected")[:1]),
+        latest_connected=Subquery(newest_connected.values("payload__state")[:1]),
     ).values('name', 'latest_state', 'latest_connected')
+
+    states = {}
+    for entry in state_data:
+        if entry['latest_connected'] is None or entry['latest_connected'] == 'disconnected':
+            states[entry['name']] = 'Disconnected'
+        else:
+            states[entry['name']] = entry['latest_state']
+
+    return states
