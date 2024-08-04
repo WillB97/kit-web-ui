@@ -21,7 +21,7 @@ PROGRESS_COUNT = 0
 
 def progress(char: str = ".") -> None:
     global PROGRESS_COUNT
-    print(indicator, end="", flush=True)
+    print(char, end="", flush=True)
 
     PROGRESS_COUNT += 1
     if PROGRESS_COUNT > 80:

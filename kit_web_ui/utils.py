@@ -5,6 +5,7 @@ from datetime import datetime
 from pathlib import Path
 from secrets import choice
 from string import ascii_letters, digits
+from typing import Any
 
 from django.db.models import Min, F, OuterRef, Subquery
 
@@ -29,9 +30,14 @@ def generate_password(wordlist: list[str] | None = None) -> str:
         return ''.join(choice(ascii_letters + digits) for _ in range(12))
 
 
-def get_run_data() -> dict[str, list[tuple[str, datetime]]]:
+def get_run_data(user: str | None = None) -> dict[str, list[tuple[str, datetime]]]:
+    if user is not None:
+        base_query = MqttData.objects.filter(user__username=user)
+    else:
+        base_query = MqttData.objects
+
     run_data = (
-        MqttData.objects
+        base_query
         .filter(subtopic='state', payload__state__exact='Running')
         .values(
             'run_uuid',
@@ -55,7 +61,7 @@ def get_robot_state() -> dict[str, str]:
     state_data = MqttData.objects.annotate(
         latest_state=Subquery(newest_state.values("payload__state")[:1]),
         latest_connected=Subquery(newest_connected.values("payload__state")[:1]),
-    ).values('name', 'latest_state', 'latest_connected')
+    ).values('latest_state', 'latest_connected', name=F('config__name'))
 
     states = {}
     for entry in state_data:
@@ -65,3 +71,16 @@ def get_robot_state() -> dict[str, str]:
             states[entry['name']] = entry['latest_state']
 
     return states
+
+
+def get_logs(user: str, run_uuid: str, end_filter: str | None = None) -> list[dict[str, Any]]:
+    query = MqttData.objects.filter(
+        subtopic='logs',
+        run_uuid=run_uuid,
+        config__user__username=user,
+    ).values_list('payload', flat=True)
+
+    if end_filter:
+        query = query.filter(date__lte=end_filter)
+
+    return list(query)

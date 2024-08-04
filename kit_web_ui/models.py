@@ -90,6 +90,7 @@ class MqttData(models.Model):
 
     class Meta:
         ordering = ["-date"]
+        get_latest_by = ["date"]
         default_permissions = ()
 
     def __str__(self) -> str:
