@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Run Select | Robot UI{% endblock %}
+
+{% block content %}
+<h1>{{name}} Runs:</h1>
+<p>Select the run to download data for.</p>
+
+<div>
+    <label for="run_select">Run:</label>
+    <select id="run_select">
+        {% for run in runs %}
+        <option value="{{ run.uuid }}">{{ run.date }}</option>
+        {% endfor %}
+    </select>
+    <button class="btn btn-primary">Get Logs</button>
+    <button class="btn btn-secondary">Get Logs & Images</button>
+</div>
+
+<script lang="javascript">
+</script>
+{% endblock %}
