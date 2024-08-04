@@ -6,17 +6,31 @@
 <h1>{{name}} Runs:</h1>
 <p>Select the run to download data for.</p>
 
-<div>
-    <label for="run_select">Run:</label>
-    <select id="run_select">
+<div class="input-group mb-3">
+    <span class="input-group-text" id="basic-addon1">Run:</span>
+    <select id="run_select" class="form-select">
         {% for run in runs %}
-        <option value="{{ run.uuid }}">{{ run.date }}</option>
+        <option value="{% url 'run_logs' run_uuid=run.uuid %}">{{ run.date }}</option>
         {% endfor %}
     </select>
-    <button class="btn btn-primary">Get Logs</button>
-    <button class="btn btn-secondary">Get Logs & Images</button>
+    <button class="btn btn-outline-primary" type="button" id="submit-logs">Get Logs</button>
+    <button class="btn btn-outline-secondary" type="button" id="submit-bundle">Get Logs & Images</button>
 </div>
 
-<script lang="javascript">
+<script type="text/javascript">
+    log_bundle_map = {
+        {% for run in runs %}
+        "{% url 'run_logs' run_uuid=run.uuid %}": "{% url 'run_bundle' run_uuid=run.uuid %}",
+        {% endfor %}
+    }
+    document.getElementById("submit-logs").onclick = function() {
+        var run = document.getElementById("run_select").value;
+        window.location.href = run + "?user={{username}}";
+    };
+
+    document.getElementById("submit-bundle").onclick = function() {
+        var run = document.getElementById("run_select").value;
+        window.location.href = log_bundle_map[run] + "?user={{username}}";
+    };
 </script>
 {% endblock %}

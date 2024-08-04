@@ -32,7 +32,7 @@ def generate_password(wordlist: list[str] | None = None) -> str:
 
 def get_run_data(user: str | None = None) -> dict[str, list[tuple[str, datetime]]]:
     if user is not None:
-        base_query = MqttData.objects.filter(user__username=user)
+        base_query = MqttData.objects.filter(config__user__username=user)
     else:
         base_query = MqttData.objects
 
@@ -58,10 +58,15 @@ def get_robot_state() -> dict[str, str]:
     newest_state = MqttData.objects.filter(config=OuterRef("id"), subtopic='state')
     newest_connected = MqttData.objects.filter(config=OuterRef("id"), subtopic='connected')
 
-    state_data = MqttData.objects.annotate(
-        latest_state=Subquery(newest_state.values("payload__state")[:1]),
-        latest_connected=Subquery(newest_connected.values("payload__state")[:1]),
-    ).values('latest_state', 'latest_connected', name=F('config__name'))
+    state_data = (
+        MqttData.objects
+        .annotate(
+            latest_state=Subquery(newest_state.values("payload__state")[:1]),
+            latest_connected=Subquery(newest_connected.values("payload__state")[:1]),
+        )
+        .order_by('config__team_number')
+        .values('latest_state', 'latest_connected', name=F('config__name'))
+    )
 
     states = {}
     for entry in state_data:

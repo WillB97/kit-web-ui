@@ -95,7 +95,8 @@ def view_status(request: HttpRequest) -> HttpResponse:
         request,
         "status.html",
         {
-            "states": states
+            "now": datetime.now(timezone.utc),
+            "states": states,
         }
     )
 
@@ -119,8 +120,10 @@ def view_runs(request: HttpRequest, user: str) -> HttpResponse:
         request,
         "runs.html",
         {
+            "now": datetime.now(timezone.utc),
             "name": team_name,
             "runs": runs_dict,
+            "username": user,
         }
     )
 
@@ -161,9 +164,9 @@ def get_run_logs(request: HttpRequest, run_uuid: str) -> HttpResponse:
 
     log_date = (
         base_query
-        .filter(subtopic='connected')
+        .filter(subtopic='state')
         .values_list('date', flat=True)
-        .earliest()
+        .last()
     )
     if log_date:
         filename = f"log-{log_date:%Y-%m-%dT%H-%M-%S}.txt"
@@ -191,9 +194,9 @@ def generate_run_bundle(request: HttpRequest, run_uuid: str) -> FileResponse:
 
     log_date = (
         base_query
-        .filter(subtopic='connected')
+        .filter(subtopic='state')
         .values_list('date', flat=True)
-        .earliest()
+        .last()
     )
     if log_date:
         filename = f"logs-{user}-{log_date:%Y-%m-%dT%H-%M-%S}.zip"
