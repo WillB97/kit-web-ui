@@ -18,7 +18,7 @@ from django.http import (
 from django.shortcuts import redirect, render, resolve_url
 
 from .models import MqttConfig, MqttData
-from .utils import get_run_data, get_logs
+from .utils import get_logs, get_robot_state, get_run_data
 
 HttpRedirect = HttpResponseRedirect | HttpResponsePermanentRedirect
 
@@ -89,8 +89,15 @@ def config(request: HttpRequest) -> JsonResponse:
 @login_required
 @staff_member_required
 def view_status(request: HttpRequest) -> HttpResponse:
-    # return render(request, "status.html")
-    pass
+    states = get_robot_state()
+
+    return render(
+        request,
+        "status.html",
+        {
+            "states": states
+        }
+    )
 
 
 @login_required
