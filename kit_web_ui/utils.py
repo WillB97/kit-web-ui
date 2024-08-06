@@ -30,7 +30,10 @@ def generate_password(wordlist: list[str] | None = None) -> str:
         return ''.join(choice(ascii_letters + digits) for _ in range(12))
 
 
-def get_run_data(user: str | None = None) -> dict[str, list[tuple[str, datetime]]]:
+def get_run_data(
+    user: str | None = None,
+    order_by: str = 'date',
+) -> dict[str, list[tuple[str, datetime]]]:
     if user is not None:
         base_query = MqttData.objects.filter(config__user__username=user)
     else:
@@ -43,7 +46,7 @@ def get_run_data(user: str | None = None) -> dict[str, list[tuple[str, datetime]
             'run_uuid',
             team_name=F('config__name'),
         )
-        .order_by('date')
+        .order_by(order_by)
         .annotate(start=Min('date'))
     )
 

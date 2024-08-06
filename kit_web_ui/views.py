@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 import zipfile
+from collections import defaultdict
 from datetime import datetime, timezone
 from io import BytesIO
 from typing import cast
@@ -124,6 +125,30 @@ def view_runs(request: HttpRequest, user: str) -> HttpResponse:
             "name": team_name,
             "runs": runs_dict,
             "username": user,
+        }
+    )
+
+
+@login_required
+@staff_member_required
+def run_summary(request: HttpRequest) -> HttpResponse:
+    run_data = get_run_data(order_by='config__team_number')
+
+    runs_per_day = defaultdict(lambda: defaultdict(int))
+    days = set()
+
+    for team_name, available_runs in run_data.items():
+        for _run_uuid, run_date in available_runs:
+            runs_per_day[team_name][run_date.date()] += 1
+            days.add(run_date.date())
+
+    return render(
+        request,
+        "run_summary.html",
+        {
+            "now": datetime.now(timezone.utc),
+            "runs_by_day": {k: dict(v) for k, v in runs_per_day.items()},
+            "days": sorted(days),
         }
     )
 

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Run Summary | Robot UI{% endblock %}
+
+{% block content %}
+<h1>Run Summary</h1>
+<table class="table">
+    <tr>
+        <th scope="col">Team</th>
+    {% for day in days %}
+        <th scope="col">{{day|date:"D d"}}</th>
+    {% endfor %}
+    </tr>
+{% for name, run_data in runs_by_day.items %}
+    <tr>
+        <th scope="row">{{ name }}</th>
+    {% for count in run_data.values %}
+        <td>{{ count }}</td>
+    {% endfor %}
+    </tr>
+{% endfor %}
+</table>
+{% endblock %}
