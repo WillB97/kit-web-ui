@@ -142,6 +142,11 @@ def run_summary(request: HttpRequest) -> HttpResponse:
             runs_per_day[team_name][run_date.date()] += 1
             days.add(run_date.date())
 
+    # Make every day have an entry for every team
+    for team_name in run_data.keys():
+        for day in days:
+            runs_per_day[team_name].setdefault(day, 0)
+
     return render(
         request,
         "run_summary.html",
