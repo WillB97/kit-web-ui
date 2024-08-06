@@ -43,6 +43,7 @@ def get_run_data(user: str | None = None) -> dict[str, list[tuple[str, datetime]
             'run_uuid',
             team_name=F('config__name'),
         )
+        .order_by('date')
         .annotate(start=Min('date'))
     )
 

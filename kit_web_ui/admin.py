@@ -28,7 +28,7 @@ class MqttConfigAdmin(admin.ModelAdmin):
 
 class MqttDataAdmin(admin.ModelAdmin):
     list_display = ("date", "config", "run_uuid", "subtopic", "payload")
-    list_filter = ("date", "run_uuid", "subtopic")
+    list_filter = ("date", "config", "subtopic", "run_uuid")
     search_fields = ("run_uuid", "config__name", "subtopic")
 
 
