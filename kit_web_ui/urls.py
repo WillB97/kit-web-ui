@@ -28,6 +28,7 @@ urlpatterns = [
     path("config", views.config, name="config"),
     path("config.json", views.config, name="config"),
     path("status", views.view_status, name="status"),
+    path("status.json", views.view_status_json, name="status_json"),
     path("runs/<str:user>", views.view_runs, name="runs"),
     path("run_summary", views.run_summary, name="run_summary"),
     path("recall/<str:run_uuid>", views.recall, name="recall"),

@@ -92,14 +92,25 @@ def config(request: HttpRequest) -> JsonResponse:
 def view_status(request: HttpRequest) -> HttpResponse:
     states = get_robot_state()
 
+    configs = MqttConfig.objects.all().values_list('name', flat=True)
+
     return render(
         request,
         "status.html",
         {
             "now": datetime.now(timezone.utc),
             "states": states,
+            "configs": configs,
         }
     )
+
+
+@login_required_json
+@staff_member_required
+def view_status_json(request: HttpRequest) -> JsonResponse:
+    states = get_robot_state()
+
+    return JsonResponse({"states": states})
 
 
 @login_required
