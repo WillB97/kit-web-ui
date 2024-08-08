@@ -166,6 +166,9 @@ def run_summary(request: HttpRequest) -> HttpResponse:
         # Sort the days
         runs_per_day[team_name] = dict(sorted(runs_per_day[team_name].items()))
 
+        # Total the runs
+        runs_per_day[team_name]['total'] = sum(runs_per_day[team_name].values())
+
     return render(
         request,
         "run_summary.html",
