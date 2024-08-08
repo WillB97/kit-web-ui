@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import base64
 import zipfile
-from collections import defaultdict
+from collections import defaultdict, Counter
 from datetime import datetime, timezone
 from io import BytesIO
 from typing import cast
@@ -148,22 +148,30 @@ def run_summary(request: HttpRequest) -> HttpResponse:
     runs_per_day = defaultdict(lambda: defaultdict(int))
     days = set()
 
-    for team_name, available_runs in run_data.items():
-        for _run_uuid, run_date in available_runs:
-            runs_per_day[team_name][run_date.date()] += 1
-            days.add(run_date.date())
+    runs_per_day = {
+        team_name: Counter(x[1].date() for x in runs)
+        for team_name, runs in run_data.items()
+    }
+    days = set(
+        day
+        for team_days in runs_per_day.values()
+        for day in team_days
+    )
 
     # Make every day have an entry for every team
     for team_name in run_data.keys():
         for day in days:
             runs_per_day[team_name].setdefault(day, 0)
 
+        # Sort the days
+        runs_per_day[team_name] = dict(sorted(runs_per_day[team_name].items()))
+
     return render(
         request,
         "run_summary.html",
         {
             "now": datetime.now(timezone.utc),
-            "runs_by_day": {k: dict(v) for k, v in runs_per_day.items()},
+            "runs_by_day": runs_per_day,
             "days": sorted(days),
         }
     )
