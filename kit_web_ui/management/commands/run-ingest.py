@@ -129,6 +129,10 @@ class Command(BaseCommand):
         except Exception:
             timestamp = now.isoformat()
 
+        if subtopic.startswith('camera'):
+            # Save only a tag for camera images
+            payload = {'data': 'camera image'}
+
         # Save the message to the database
         MqttData.objects.create(
             date=timestamp,
