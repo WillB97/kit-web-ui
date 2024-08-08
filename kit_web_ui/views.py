@@ -19,7 +19,7 @@ from django.http import (
 from django.shortcuts import redirect, render, resolve_url
 
 from .models import MqttConfig, MqttData
-from .utils import get_logs, get_robot_state, get_run_data
+from .utils import get_logs, get_robot_state, get_run_data, get_image_counts
 
 HttpRedirect = HttpResponseRedirect | HttpResponsePermanentRedirect
 
@@ -175,6 +175,7 @@ def run_summary(request: HttpRequest) -> HttpResponse:
         {
             "now": datetime.now(timezone.utc),
             "runs_by_day": runs_per_day,
+            "images": get_image_counts(),
             "days": sorted(days),
         }
     )

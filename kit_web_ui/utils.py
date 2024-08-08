@@ -7,7 +7,7 @@ from secrets import choice
 from string import ascii_letters, digits
 from typing import Any
 
-from django.db.models import Min, F, OuterRef, Subquery
+from django.db.models import Min, F, OuterRef, Subquery, Count
 
 from kit_web_ui.models import MqttData
 
@@ -56,6 +56,16 @@ def get_run_data(
         runs[run_val['team_name']].append((run_val['run_uuid'], run_val['start']))
 
     return dict(runs)
+
+
+def get_image_counts() -> list[dict[str, int]]:
+    return list(
+        MqttData.objects
+        .filter(subtopic='camera/annotated')
+        .values(name=F('config__name'))
+        .annotate(images=Count('pk'))
+        .order_by('config__team_number')
+    )
 
 
 def get_robot_state() -> dict[str, str]:

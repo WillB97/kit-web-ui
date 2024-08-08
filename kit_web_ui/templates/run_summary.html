@@ -21,4 +21,17 @@
     </tr>
 {% endfor %}
 </table>
+<hr>
+<table class="table">
+    <tr>
+        <th scope="col">Team</th>
+        <th scope="col">Images</th>
+    </tr>
+{% for team_data in images %}
+    <tr>
+        <th scope="row">{{ team_data.name }}</th>
+        <td>{{ team_data.images }}</td>
+    </tr>
+{% endfor %}
+</table>
 {% endblock %}
