@@ -26,5 +26,12 @@ urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     path("", views.index, name="index"),
     path("config", views.config, name="config"),
-    path("load_ui", views.load_ui, name="load_ui"),
+    path("config.json", views.config, name="config"),
+    path("status", views.view_status, name="status"),
+    path("status.json", views.view_status_json, name="status_json"),
+    path("runs/<str:user>", views.view_runs, name="runs"),
+    path("run_summary", views.run_summary, name="run_summary"),
+    path("recall/<str:run_uuid>", views.recall, name="recall"),
+    path("logs/<str:run_uuid>", views.get_run_logs, name="run_logs"),
+    path("run_bundle/<str:run_uuid>", views.generate_run_bundle, name="run_bundle"),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

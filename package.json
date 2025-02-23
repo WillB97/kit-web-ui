@@ -1,0 +1,13 @@
+{
+    "name": "kit-web-ui",
+    "scripts": {
+        "install": "cd kit-ui && npm install",
+        "build:ui": "cd kit-ui && npm run clean && npm run build-django",
+        "run:server": "django-admin runserver",
+        "run:ui": "cd kit-ui && npm run watch-django",
+        "start": "npm-run-all --parallel run:*"
+    },
+    "devDependencies": {
+      "npm-run-all": "^4.1.2"
+    }
+}

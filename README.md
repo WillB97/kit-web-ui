@@ -5,7 +5,7 @@ This can be installed locally in WSL, Ubuntu and MacOS. These commands should be
 
 Install dependencies
 ```bash
-sudo apt install python3.10-venv
+sudo apt install python3.10-venv npm
 ```
 
 Create and activate a virtual environment
@@ -30,14 +30,22 @@ python -c 'import django.core.management.utils; print(django.core.management.uti
 To setup the database and create the superadmin user (you will need to enter a username and password in this step) run:
 ```bash
 source django_env
-django-admin migrate && django-admin collectstatic && django-admin createsuperuser
+django-admin migrate && django-admin createsuperuser
+```
+
+Install the frontend dependencies using:
+```bash
+npm install
 ```
 
 At this point you can run the webserver using:
 ```bash
 source dev_env
-django-admin runserver
+npm start
 ```
+
+`npm start` will run the django server and the frontend server concurrently.
+Any other django commands can be run using `django-admin`.
 
 ### Building wheels
 Wheels can be made for the dockerfile using:
@@ -52,7 +60,7 @@ Deploying on Ubuntu 22.04.
 
 Install dependencies
 ```bash
-sudo apt install nginx uwsgi uwsgi-plugin-python3 python3.10-dev python3.10-venv build-essential
+sudo apt install nginx uwsgi uwsgi-plugin-python3 python3.10-dev python3.10-venv build-essential npm
 ```
 
 Create a virtualenv under /srv/kit-web-ui
@@ -83,6 +91,12 @@ Copy `env.example` to `/srv/kit-web-ui/django-env.env` and populate the fields.
 Start the services that don't immediately connect to the database
 ```bash
 systemctl daemon-reload && systemctl enable --now nginx uwsgi@kit-web-ui.socket
+```
+
+Install the frontend dependencies and build the frontend, `collectstatic` will later collect these files
+```bash
+npm install
+npm run build:ui
 ```
 
 Allow django to generate the database and collect up static files to be served

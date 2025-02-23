@@ -1,0 +1,4 @@
+[submodule "kit-ui"]
+	path = kit-ui
+	url = https://github.com/WillB97/kit-ui.git
+	branch = sb2024

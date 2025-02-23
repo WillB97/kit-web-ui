@@ -53,9 +53,10 @@ class MqttConfig(models.Model):
     username = models.CharField(max_length=200)
     password = models.CharField(max_length=200, default="", blank=True)
     topic_root = models.CharField(max_length=200)
+    team_number = models.IntegerField(default=100)
 
     class Meta:
-        ordering = ["name"]
+        ordering = ["team_number", "name"]
         default_permissions = ()
 
     def generate_url(self) -> str:
@@ -72,6 +73,31 @@ class MqttConfig(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+
+class MqttData(models.Model):
+    date = models.DateTimeField()
+    config = models.ForeignKey(
+        MqttConfig,
+        related_name='data',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    subtopic = models.CharField(max_length=200)
+    payload = models.JSONField()
+    run_uuid = models.CharField(max_length=32, default="", blank=True)
+
+    class Meta:
+        ordering = ["-date"]
+        get_latest_by = ["date"]
+        default_permissions = ()
+
+    def __str__(self) -> str:
+        if self.config is None:
+            return f"{self.date} {self.subtopic}"
+        else:
+            return f"{self.date} {self.config.topic_root}/{self.subtopic}"
 
 
 class AuditEvent(models.Model):

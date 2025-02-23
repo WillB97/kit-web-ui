@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Team Select | Robot UI{% endblock %}
 
@@ -9,14 +10,19 @@
 {% for team in teams %}
     <div class="col">
         <div class="card border-dark bg-light mb-3">
-            <div class="card-body" style="text-align: center;">
+            <div class="card-body position-relative" style="text-align: center;">
                 <h5 class="card-title">{{ team.name }}</h5>
                 <p class="card-text">
                     User: {{ team.username }} (Logged in: {{ team.last_login }})<br>
                     Broker: {{ team.broker }}<br>
                 </p>
                 <div class="d-grid gap-2">
-                    <a href="{% url 'load_ui' %}?team={{ team.username }}" class="btn btn-outline-primary stretched-link">Select</a>
+                    <a href="{% static 'ui/index.html' %}?user={{ team.username }}" class="btn btn-outline-primary stretched-link">Select</a>
+                </div>
+            </div>
+            <div class="card-footer position-relative">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'runs' team.username %}" class="btn btn-outline-success stretched-link">View Logs</a>
                 </div>
             </div>
         </div>

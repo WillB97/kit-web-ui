@@ -9,7 +9,7 @@ from django.core.management.base import BaseCommand, CommandError
 
 
 class Command(BaseCommand):
-    help = 'Generate team accounts and MQTT credentials'
+    help = 'Update the password for an existing user'
 
     def add_arguments(self, parser) -> None:  # type: ignore
         parser.add_argument('--user', required=True, type=str, help='Broker listener name')

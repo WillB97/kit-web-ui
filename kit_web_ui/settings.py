@@ -21,8 +21,10 @@ SECRET_KEY = environ.get("DJANGO_SECRET_KEY")
 DEBUG = environ.get("DJANGO_DEBUG", default="false").lower() == "true"
 
 # Populate with a list of all configured hostnames on the server
-ALLOWED_HOSTS = [host.strip() for host in environ.get(
-    "DJANGO_ALLOWED_HOSTS", default="*").split(",")]
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in environ.get("DJANGO_ALLOWED_HOSTS", default="*").split(",")
+]
 
 # Application definition
 INSTALLED_APPS = [
@@ -64,12 +66,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'kit_web_ui.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if environ.get('USE_POSTGRES', default="false").lower() == "true":
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": environ.get("POSTGRES_DB", "postgres"),
+            "USER": environ.get("POSTGRES_USER", "postgres"),
+            "PASSWORD": environ.get("POSTGRES_PASSWORD", "postgres"),
+            "HOST": environ.get("POSTGRES_HOST", "localhost"),
+            "PORT": environ.get("POSTGRES_PORT", "5432"),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -93,6 +107,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
 STATIC_ROOT = "static/"
+STATICFILES_DIRS = [
+    BASE_DIR / "kit-ui/dist",
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -101,4 +118,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 KIT_UI = {
     "WORDLIST": environ.get("WORDLIST", ''),
+}
+
+MQTT_BROKER = {
+    "HOST": environ.get("MQTT_BROKER_HOST", "localhost"),
+    "PORT": int(environ.get("MQTT_BROKER_PORT", "1883")),
+    "USERNAME": environ.get("MQTT_BROKER_USERNAME"),
+    "PASSWORD": environ.get("MQTT_BROKER_PASSWORD"),
+    "USE_TLS": {
+        'true': True,
+        'false': False,
+        'insecure': 'insecure',
+    }.get(environ.get("MQTT_BROKER_USE_TLS", "false").lower(), False),
 }

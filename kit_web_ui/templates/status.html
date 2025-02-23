@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Robot States | Robot UI{% endblock %}
+
+{% block content %}
+<h1>Robot States</h1>
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+{% for name in configs %}
+    <div class="col">
+        <div class="card border-dark bg-light mb-3">
+            <div class="card-body" style="text-align: center;">
+                <h5 class="card-title">{{ name }}</h5>
+                <p class="card-text">
+                    State: <span id="{{name}}-state" class="badge bg-light text-dark">Unknown</span>
+                </p>
+            </div>
+        </div>
+    </div>
+{% endfor %}
+</div>
+
+<script>
+    function updateStates() {
+        fetch("{% url 'status_json' %}")
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                for (const [name, state] of Object.entries(data.states)) {
+                    console.log(name, state);
+                    const stateElement = document.getElementById(`${name}-state`);
+                    stateElement.innerText = state;
+                    let stateBadgeClass = "bg-light text-dark";
+                    switch(state) {
+                        case "Disconnected":  // Gray
+                            stateBadgeClass = "bg-secondary";
+                            break;
+                        case "NoUSB":  // Gray
+                            stateBadgeClass = "bg-secondary";
+                            break;
+                        case "Running":  // Blue
+                            stateBadgeClass = "bg-primary";
+                            break;
+                        case "Killed":  // Magenta
+                            stateBadgeClass = "bg-info text-dark";
+                            break;
+                        case "Finished":  // Green
+                            stateBadgeClass = "bg-success";
+                            break;
+                        case "Crashed":  // Red
+                            stateBadgeClass = "bg-danger";
+                            break;
+                        default:
+                            stateBadgeClass = "bg-light text-dark";
+                    }
+
+                    stateElement.className = "badge " + stateBadgeClass;
+                }
+            });
+    }
+
+    updateStates();
+    setInterval(updateStates, 10000);
+</script>
+{% endblock %}
